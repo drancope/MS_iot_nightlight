@@ -41,11 +41,15 @@ void setup() {
   String ssidHoy;
   String passHoy;
 //  if(Serial.available()){
-    ssidHoy = Serial.readStringUntil('+');
+    ssidHoy = Serial.readStringUntil('\r');
+    char b = Serial.read(); //damn LF after CR
+    Serial.read(); //damn LF after CR
 //  }
   Serial.println("Contraseña:");
 //  if(Serial.available()){
-    passHoy = Serial.readStringUntil('+');
+    passHoy = Serial.readStringUntil('\r');
+    b = Serial.read(); //damn LF after CR
+    Serial.read(); //damn LF after CR
 //  }
   char *ssid = new char[ssidHoy.length() + 1];
   char *pass = new char[passHoy.length() + 1];
