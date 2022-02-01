@@ -51,7 +51,6 @@ void setup() {
   char *pass = new char[passHoy.length() + 1];
   strcpy(ssid, ssidHoy.c_str());
   strcpy(pass, passHoy.c_str());
-  connectWiFi(ssid, pass);
 
 
   createMQTTClient();
