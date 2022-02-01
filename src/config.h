@@ -5,8 +5,8 @@
 using namespace std;
 
 // WiFi credentials
-//const char *SSID = "yourssid";
-//const char *PASSWORD = "yourpass";
+char *SSID = "Andared";
+char *PASSWORD = "llevalatararaunvestidoblancollenodecascabeles";
 
 const string ID = "aa6ba08d-0ca2-41ec-8d4c-9e56112ff81f";
 

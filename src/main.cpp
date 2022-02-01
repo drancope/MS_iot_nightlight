@@ -32,31 +32,29 @@ NTPClient timeClient(wifiUdp, "es.pool.ntp.org", 1 * 3600, 60000);  // Ajust for
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(3, INPUT_PULLDOWN);
   Serial.begin(115200);
   delay(2000);
-  Serial.setTimeout(8000);
-  // Conectar a una wifi conocida según los datos que pongamos:
-  Serial.println("Datos de red wifi:");
-  Serial.println("Nombre de red:");
-  String ssidHoy;
-  String passHoy;
-//  if(Serial.available()){
+  if(digitalRead(3)) {
+    Serial.setTimeout(8000);
+    // Conectar a una wifi conocida según los datos que pongamos:
+    Serial.println("Datos de red wifi:");
+    Serial.println("Nombre de red:");
+    String ssidHoy;
+    String passHoy;
     ssidHoy = Serial.readStringUntil('\r');
-    char b = Serial.read(); //damn LF after CR
     Serial.read(); //damn LF after CR
-//  }
-  Serial.println("Contraseña:");
-//  if(Serial.available()){
+    Serial.println("Contraseña:");
     passHoy = Serial.readStringUntil('\r');
-    b = Serial.read(); //damn LF after CR
     Serial.read(); //damn LF after CR
-//  }
-  char *ssid = new char[ssidHoy.length() + 1];
-  char *pass = new char[passHoy.length() + 1];
-  strcpy(ssid, ssidHoy.c_str());
-  strcpy(pass, passHoy.c_str());
-
-
+    char *ssid = new char[ssidHoy.length() + 1];
+    char *pass = new char[passHoy.length() + 1];
+    strcpy(ssid, ssidHoy.c_str());
+    strcpy(pass, passHoy.c_str());
+    connectWiFi(ssid, pass);
+  } else {
+    connectWiFi(SSID, PASSWORD);
+  }
   createMQTTClient();
   Wire.begin();
   lightMeter.begin();
