@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <WiFiNINA.h>
 #include <WiFiUdp.h>
-//#include <Time.h>
+#include <Time.h>
 #include <TimeLib.h>
 #include <DHT.h>
 #include <Wire.h>
@@ -35,7 +35,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(3, INPUT_PULLDOWN);
   Serial.begin(115200);
-  delay(2000);
+  delay(4000);
   if(digitalRead(3)) {
     Serial.setTimeout(8000);
     // Conectar a una wifi conocida según los datos que pongamos:
