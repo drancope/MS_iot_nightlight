@@ -2,11 +2,11 @@
 #include <SPI.h>
 #include <WiFiNINA.h>
 #include <WiFiUdp.h>
-#include <Time.h>
+//#include <Time.h>
 #include <TimeLib.h>
 #include <DHT.h>
 #include <Wire.h>
-#include <ArduinoJSON.h>
+#include <ArduinoJson.h>
 #include <PubSubClient.h>
 #include <BH1750.h>
 #include <NTPClient.h>
@@ -24,6 +24,7 @@ void connectWiFi(char *ssid, char * pass);
 void reconnectMQTTClient();
 void createMQTTClient();
 void switch_light();
+string broker = "192.168.0.40";
 
 WiFiClient rp2040Client;
 PubSubClient client(rp2040Client);
@@ -54,6 +55,7 @@ void setup() {
     connectWiFi(ssid, pass);
   } else {
     connectWiFi(SSID, PASSWORD);
+    broker = BROKER.c_str();
   }
   createMQTTClient();
   Wire.begin();
@@ -142,6 +144,6 @@ void reconnectMQTTClient()
 
 void createMQTTClient()
 {
-    client.setServer(BROKER.c_str(), 1883);
+    client.setServer(broker.c_str(), 1883);
     reconnectMQTTClient();
 }
