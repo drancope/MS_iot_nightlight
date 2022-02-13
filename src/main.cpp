@@ -10,20 +10,25 @@
 #include <PubSubClient.h>
 #include <BH1750.h>
 #include <NTPClient.h>
+#include <SFE_BMP180.h>
 
 #include "config.h"
 
 #define DHTPIN 2
 #define DHTTYPE DHT11
+#define ALTITUDE 840.0
+
 
 boolean luz = false;
 DHT dht(DHTPIN, DHTTYPE);
 BH1750 lightMeter;
+SFE_BMP180 pressureSensor;
 
 void connectWiFi(char *ssid, char *pass);
 void reconnectMQTTClient();
-void createMQTTClient();
+void createMQTTClient(char *broker);
 void switch_light();
+float readPressureFromSensor();
 
 void callback(char* topic, byte* payload, unsigned int length) {
   ;
@@ -35,6 +40,9 @@ WiFiUDP wifiUdp;
 NTPClient timeClient(wifiUdp, "es.pool.ntp.org", 1 * 3600, 60000);  // Ajust for your location
 
 void setup() {
+  String servidorMqtt;
+  char *broker;
+
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(3, INPUT_PULLDOWN);
   Serial.begin(115200);
@@ -56,17 +64,25 @@ void setup() {
     strcpy(ssid, ssidHoy.c_str());
     strcpy(pass, passHoy.c_str());
     connectWiFi(ssid, pass);
+    broker = new char[BROKER.length() +1];
+    strcpy(broker, BROKER.c_str());
   } else {
+    Serial.println("Datos de servidor MQTT: ");
+    servidorMqtt = Serial.readStringUntil('\r');
+    Serial.read(); //damn LF after CR
     char *ssid = new char[SSID.length() +1];
     char *pass = new char[PASSWORD.length() +1];
+    broker = new char[servidorMqtt.length() +1];
     strcpy(ssid, SSID.c_str());
     strcpy(pass, PASSWORD.c_str());
+    strcpy(broker, servidorMqtt.c_str());
     connectWiFi(ssid, pass);
   }
-  createMQTTClient();
+  createMQTTClient(broker);
   Wire.begin();
   lightMeter.begin();
   dht.begin();
+  pressureSensor.begin();
   timeClient.begin();
   timeClient.update();
 
@@ -83,8 +99,9 @@ void loop() {
   float h = dht.readHumidity();
   float t = dht.readTemperature();
   uint16_t light = lightMeter.readLightLevel();
+  float presion = readPressureFromSensor();
   timeClient.update();
-  String timeNTP = timeClient.getFormattedTime();
+  String timeNTP = timeClient.getFormattedDate();
 
   if (isnan(h) || isnan(t)) {
     Serial.println(F("Failed to read from DHT sensor!"));
@@ -96,6 +113,7 @@ void loop() {
   doc["luz"] = light;
   doc["temperatura"] = t;
   doc["humedad"] = h;
+  doc["presion"] = presion;
 
   string telemetry;
   JsonObject obj = doc.as<JsonObject>();
@@ -153,8 +171,35 @@ void reconnectMQTTClient()
     }
 }
 
-void createMQTTClient()
+void createMQTTClient(char *broker)
 {
-    client.setServer(BROKER.c_str(), 1883);
+    client.setServer(broker, 1883);
     reconnectMQTTClient();
+}
+
+float readPressureFromSensor()
+{
+  char status;
+  double T, P, p0;
+
+  status = pressureSensor.startTemperature();
+  if (status != 0)
+  {
+    delay(status);
+    status = pressureSensor.getTemperature(T);
+    if (status != 0)
+    {
+      status = pressureSensor.startPressure(3);
+      if (status != 0)
+      {
+        delay(status);
+        status = pressureSensor.getPressure(P,T);
+        if (status != 0)
+        {
+          p0 = pressureSensor.sealevel(P,ALTITUDE);
+          return p0;
+        }
+      }
+    }
+  }
 }
