@@ -20,14 +20,17 @@ boolean luz = false;
 DHT dht(DHTPIN, DHTTYPE);
 BH1750 lightMeter;
 
-void connectWiFi(char *ssid, char * pass);
+void connectWiFi(char *ssid, char *pass);
 void reconnectMQTTClient();
 void createMQTTClient();
 void switch_light();
-string broker = "192.168.0.40";
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  ;
+}
 
 WiFiClient rp2040Client;
-PubSubClient client(rp2040Client);
+PubSubClient client(BROKER.c_str(), 1883, callback, rp2040Client);
 WiFiUDP wifiUdp;
 NTPClient timeClient(wifiUdp, "es.pool.ntp.org", 1 * 3600, 60000);  // Ajust for your location
 
@@ -54,8 +57,11 @@ void setup() {
     strcpy(pass, passHoy.c_str());
     connectWiFi(ssid, pass);
   } else {
-    connectWiFi(SSID, PASSWORD);
-    broker = BROKER.c_str();
+    char *ssid = new char[SSID.length() +1];
+    char *pass = new char[PASSWORD.length() +1];
+    strcpy(ssid, SSID.c_str());
+    strcpy(pass, PASSWORD.c_str());
+    connectWiFi(ssid, pass);
   }
   createMQTTClient();
   Wire.begin();
@@ -76,7 +82,7 @@ void loop() {
 
   float h = dht.readHumidity();
   float t = dht.readTemperature();
-  float light = lightMeter.readLightLevel();
+  uint16_t light = lightMeter.readLightLevel();
   timeClient.update();
   String timeNTP = timeClient.getFormattedTime();
 
@@ -94,12 +100,17 @@ void loop() {
   string telemetry;
   JsonObject obj = doc.as<JsonObject>();
   serializeJson(obj, telemetry);
-  Serial.print("Enviando telemetría ");
+  Serial.print("Enviando telemetría a ");
+  Serial.print(BROKER.c_str());
+  Serial.print(": ");
   Serial.println(telemetry.c_str());
   client.publish(CLIENT_TELEMETRY_TOPIC.c_str(), telemetry.c_str());
 
-  delay(60000*10);
-
+  int milis = millis();
+  while (millis() -milis < 600000) {
+      switch_light();
+      delay(1000);
+  }
 }
 
 void switch_light() {
@@ -126,15 +137,15 @@ void reconnectMQTTClient()
 {
     while (!client.connected())
     {
-        Serial.print("Attempting MQTT connection...");
-
+        Serial.print("Attempting MQTT connection to ");
+        Serial.print(BROKER.c_str());
         if (client.connect(CLIENT_NAME.c_str()))
         {
-            Serial.println("connected");
+            Serial.println("  ...connected");
         }
         else
         {
-            Serial.print("Retying in 5 seconds - failed, rc=");
+            Serial.print(" Retying in 5 seconds - failed, rc=");
             Serial.println(client.state());
 
             delay(5000);
@@ -144,6 +155,6 @@ void reconnectMQTTClient()
 
 void createMQTTClient()
 {
-    client.setServer(broker.c_str(), 1883);
+    client.setServer(BROKER.c_str(), 1883);
     reconnectMQTTClient();
 }
