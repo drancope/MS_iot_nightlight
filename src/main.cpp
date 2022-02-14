@@ -25,7 +25,7 @@ BH1750 lightMeter;
 SFE_BMP180 pressureSensor;
 
 void connectWiFi(char *ssid, char *pass);
-void reconnectMQTTClient();
+void reconnectMQTTClient(char *broker);
 void createMQTTClient(char *broker);
 void switch_light();
 float readPressureFromSensor();
@@ -38,6 +38,7 @@ WiFiClient rp2040Client;
 PubSubClient client(BROKER.c_str(), 1883, callback, rp2040Client);
 WiFiUDP wifiUdp;
 NTPClient timeClient(wifiUdp, "es.pool.ntp.org", 1 * 3600, 60000);  // Ajust for your location
+char *broker_global;
 
 void setup() {
   String servidorMqtt;
@@ -78,6 +79,8 @@ void setup() {
     strcpy(broker, servidorMqtt.c_str());
     connectWiFi(ssid, pass);
   }
+  //broker_global = new char [broker.length() +1];
+  strcpy(broker_global, broker);
   createMQTTClient(broker);
   Wire.begin();
   lightMeter.begin();
@@ -90,7 +93,7 @@ void setup() {
 }
 
 void loop() {
-  reconnectMQTTClient();
+  reconnectMQTTClient(broker_global);
   client.loop();
   IPAddress ip;
   ip = WiFi.localIP();
@@ -119,7 +122,7 @@ void loop() {
   JsonObject obj = doc.as<JsonObject>();
   serializeJson(obj, telemetry);
   Serial.print("Enviando telemetría a ");
-  Serial.print(BROKER.c_str());
+  Serial.print(broker_global);
   Serial.print(": ");
   Serial.println(telemetry.c_str());
   client.publish(CLIENT_TELEMETRY_TOPIC.c_str(), telemetry.c_str());
@@ -151,12 +154,12 @@ void connectWiFi(char *ssid, char *pass)
     Serial.println(WiFi.localIP());
 }
 
-void reconnectMQTTClient()
+void reconnectMQTTClient(char *broker)
 {
     while (!client.connected())
     {
         Serial.print("Attempting MQTT connection to ");
-        Serial.print(BROKER.c_str());
+        Serial.print(broker);
         if (client.connect(CLIENT_NAME.c_str()))
         {
             Serial.println("  ...connected");
@@ -174,7 +177,7 @@ void reconnectMQTTClient()
 void createMQTTClient(char *broker)
 {
     client.setServer(broker, 1883);
-    reconnectMQTTClient();
+    reconnectMQTTClient(broker);
 }
 
 float readPressureFromSensor()
