@@ -69,14 +69,14 @@ void setup() {
     strcpy(broker, BROKER.c_str());
   } else {
     Serial.println("Datos de servidor MQTT: ");
-    servidorMqtt = Serial.readStringUntil('\r');
+    //servidorMqtt = BROKER;
     Serial.read(); //damn LF after CR
     char *ssid = new char[SSID.length() +1];
     char *pass = new char[PASSWORD.length() +1];
-    broker = new char[servidorMqtt.length() +1];
+    broker = new char[BROKER.length() +1];
     strcpy(ssid, SSID.c_str());
     strcpy(pass, PASSWORD.c_str());
-    strcpy(broker, servidorMqtt.c_str());
+    strcpy(broker, BROKER.c_str());
     connectWiFi(ssid, pass);
   }
   //broker_global = new char [broker.length() +1];
