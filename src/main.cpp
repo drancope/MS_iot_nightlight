@@ -24,7 +24,7 @@ DHT dht(DHTPIN, DHTTYPE);
 BH1750 lightMeter;
 SFE_BMP180 pressureSensor;
 
-void connectWiFi(char *ssid, char *pass);
+void connectWiFi(String SSID, String PASS);
 void reconnectMQTTClient(char *broker);
 void createMQTTClient(char *broker);
 void switch_light();
@@ -60,24 +60,16 @@ void setup() {
     Serial.println("Contraseña:");
     passHoy = Serial.readStringUntil('\r');
     Serial.read(); //damn LF after CR
-    char *ssid = new char[ssidHoy.length() + 1];
-    char *pass = new char[passHoy.length() + 1];
-    strcpy(ssid, ssidHoy.c_str());
-    strcpy(pass, passHoy.c_str());
-    connectWiFi(ssid, pass);
+    connectWiFi(ssidHoy, passHoy);
     broker = new char[BROKER.length() +1];
     strcpy(broker, BROKER.c_str());
   } else {
     Serial.println("Datos de servidor MQTT: ");
     //servidorMqtt = BROKER;
     Serial.read(); //damn LF after CR
-    char *ssid = new char[SSID.length() +1];
-    char *pass = new char[PASSWORD.length() +1];
     broker = new char[BROKER.length() +1];
-    strcpy(ssid, SSID.c_str());
-    strcpy(pass, PASSWORD.c_str());
     strcpy(broker, BROKER.c_str());
-    connectWiFi(ssid, pass);
+    connectWiFi(SSID, PASS);
   }
   //broker_global = new char [broker.length() +1];
   strcpy(broker_global, broker);
@@ -139,8 +131,12 @@ void switch_light() {
   digitalWrite(LED_BUILTIN, luz);
 }
 
-void connectWiFi(char *ssid, char *pass)
-{
+
+void connectWiFi(String SSID, String PASS) {
+    char *ssid = new char[SSID.length() +1 ];
+    strcpy(ssid, SSID.c_str());
+    char *pass = new char[PASS.length() +1 ];
+    strcpy(ssid, PASS.c_str());
     Serial.println(ssid);
     Serial.println(pass);
     while (WiFi.status() != WL_CONNECTED)

@@ -5,8 +5,8 @@
 using namespace std;
 
 // WiFi credentials
-const string SSID = "Andared";
-const string PASSWORD = "llevalatararaunvestidoblancollenodecascabeles";
+const String SSID = "Andared";
+const String PASS = "llevalatararaunvestidoblancollenodecascabeles";
 
 const string ID = "aa6ba08d-0ca2-41ec-8d4c-9e56112ff81f";
 #define LOCAL_BROKER
