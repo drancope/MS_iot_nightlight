@@ -1,0 +1,47 @@
+// AUTOMATICALLY GENERATED FILE. PLEASE DO NOT MODIFY IT MANUALLY
+//
+// PIO Unified Debugger
+//
+// Documentation: https://docs.platformio.org/page/plus/debugging.html
+// Configuration: https://docs.platformio.org/page/projectconf/section_env_debug.html
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug",
+            "executable": "/Users/drancope/Documents/PlatformIO/Projects/MS_iot_nightlight/.pio/build/nanorp2040connect/firmware.elf",
+            "projectEnvName": "nanorp2040connect",
+            "toolchainBinDir": "/Users/drancope/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "/Users/drancope/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd",
+            "preLaunchTask": {
+                "type": "PlatformIO",
+                "task": "Pre-Debug"
+            }
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (skip Pre-Debug)",
+            "executable": "/Users/drancope/Documents/PlatformIO/Projects/MS_iot_nightlight/.pio/build/nanorp2040connect/firmware.elf",
+            "projectEnvName": "nanorp2040connect",
+            "toolchainBinDir": "/Users/drancope/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "/Users/drancope/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (without uploading)",
+            "executable": "/Users/drancope/Documents/PlatformIO/Projects/MS_iot_nightlight/.pio/build/nanorp2040connect/firmware.elf",
+            "projectEnvName": "nanorp2040connect",
+            "toolchainBinDir": "/Users/drancope/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "/Users/drancope/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd",
+            "loadMode": "manual"
+        }
+    ]
+}
